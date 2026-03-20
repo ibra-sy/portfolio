@@ -7,7 +7,7 @@
 <!-- ═══ SEO & VERIFICATION ═══ -->
 <meta name="google-site-verification" content="5w4ujIr-LCRuKdLLoMgXZCEI1J96C0-U3jUEGvXaYfg" />
 <meta name="description" content="Portfolio de Sylla Scheikna Ibrahim (Ibra-sy) — Développeur Full-Stack, Ingénieur Réseau & Télécom, Hacker Éthique basé à Grand-Bassam, Côte d'Ivoire."/>
-<meta name="keywords" content="Sylla Scheikna, Ibra-sy, Sylla Ibrahim, portfolio, développeur full-stack, hacker éthique, ingénieur réseau, Grand-Bassam, Côte d'Ivoire, Flutter, Django, cybersécurité, ibra-sy github, portfolio sylla scheikna, sylla ibrahim, sylla scheikna ibrahim, sylla scheikna ibrahim portfolio, sylla scheikna ibrahim github, sylla scheikna ibrahim linkedin, sylla scheikna ibrahim x, sylla scheikna ibrahim youtube, sylla scheikna ibrahim instagram, sylla scheikna ibrahim twitter, sylla scheikna ibrahim facebook, sylla scheikna ibrahim tiktok, sylla scheikna ibrahim reddit, sylla scheikna ibrahim pinterest, sylla scheikna ibrahim github, sylla scheikna ibrahim linkedin, sylla scheikna ibrahim x, sylla scheikna ibrahim youtube, sylla scheikna ibrahim instagram, sylla scheikna ibrahim twitter, sylla scheikna ibrahim facebook, sylla scheikna ibrahim tiktok, sylla scheikna ibrahim reddit, sylla scheikna ibrahim pinterest"/>
+<meta name="keywords" content="Sylla Scheikna, Ibra-sy, Sylla Ibrahim, portfolio, développeur full-stack, hacker éthique, ingénieur réseau, Grand-Bassam, Côte d'Ivoire, Flutter, Django, cybersécurité, ibra-sy github, portfolio sylla scheikna, sylla ibrahim, sylla scheikna ibrahim, sylla scheikna ibrahim portfolio, sylla scheikna ibrahim github, sylla scheikna ibrahim linkedin"/>
 <meta name="author" content="Sylla Scheikna Ibrahim"/>
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://sylla-scheickna.vercel.app"/>
@@ -18,6 +18,10 @@
 <meta property="og:url" content="https://sylla-scheickna.vercel.app"/>
 <meta property="og:type" content="website"/>
 <meta property="og:locale" content="fr_FR"/>
+<!-- Capture d'écran de ton portfolio (1200x630px recommandé) -->
+<meta property="og:image" content="https://sylla-scheickna.vercel.app/preview.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
 
 <!-- ═══ DONNÉES STRUCTURÉES JSON-LD (boost Google) ═══ -->
 <script type="application/ld+json">
@@ -934,10 +938,31 @@ body.light .about-text p strong{color:#1a6b35}
         </div>
       </div>
       <div class="contact-form reveal" style="transition-delay:.14s">
-        <div class="form-group"><label>// Identifier</label><input type="text" placeholder="Your name or handle"/></div>
-        <div class="form-group"><label>// Return address</label><input type="email" placeholder="your@email.com"/></div>
-        <div class="form-group"><label>// Message payload</label><textarea placeholder="Type your message..."></textarea></div>
-        <button class="btn form-submit" onclick="handleFormSubmit(event)">./send_message</button>
+        <form
+          id="contact-form"
+          action="https://formspree.io/f/xnjgrbbw"
+          method="POST"
+        >
+          <div class="form-group">
+            <label>// Identifier</label>
+            <input type="text" name="name" placeholder="Your name or handle" required/>
+          </div>
+          <div class="form-group">
+            <label>// Return address</label>
+            <input type="email" name="email" placeholder="your@email.com" required/>
+          </div>
+          <div class="form-group">
+            <label>// Message payload</label>
+            <textarea name="message" placeholder="Type your message..." required></textarea>
+          </div>
+          <!-- Anti-spam honeypot (invisible) -->
+          <input type="text" name="_gotcha" style="display:none"/>
+          <button type="submit" class="btn form-submit" id="submit-btn">./send_message</button>
+        </form>
+        <!-- Message de confirmation -->
+        <div id="form-success" style="display:none;color:var(--green);font-size:.78rem;margin-top:1rem;letter-spacing:.1em;font-family:var(--font-mono)">
+          » Message transmitted successfully. I'll get back to you soon.
+        </div>
       </div>
     </div>
   </div>
@@ -1110,14 +1135,39 @@ function openEgg(){
 function closeEgg(){ document.getElementById('egg-overlay').classList.remove('active'); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeEgg(); });
 
-/* ── FORM ── */
-function handleFormSubmit(e){
-  e.preventDefault(); const btn=e.target;
-  btn.textContent='./message_sent ✓';
-  btn.style.borderColor='var(--green)'; btn.style.color='var(--green)';
-  playClick();
-  setTimeout(()=>{ btn.textContent='./send_message'; btn.style.borderColor=''; btn.style.color=''; },3000);
-}
+/* ── FORM — envoi réel via Formspree ── */
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const form = e.target;
+  btn.textContent = './sending...';
+  btn.disabled = true;
+  btn.style.opacity = '.6';
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      form.reset();
+      document.getElementById('form-success').style.display = 'block';
+      btn.textContent = './message_sent ✓';
+      btn.style.color = 'var(--green)';
+      btn.style.borderColor = 'var(--green)';
+      btn.style.opacity = '1';
+      playClick();
+    } else {
+      btn.textContent = './error — retry';
+      btn.style.color = 'var(--red)';
+      btn.style.opacity = '1';
+    }
+  } catch(err) {
+    btn.textContent = './network_error';
+    btn.style.opacity = '1';
+  }
+  btn.disabled = false;
+});
 </script>
 </body>
 </html>
